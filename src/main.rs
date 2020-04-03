@@ -4,10 +4,10 @@ use std::collections::HashMap;
 use std::fs;
 
 fn read_file(path: String) -> String {
-    String::from(fs::read_to_string(path).expect("error reading file"))
+    fs::read_to_string(path).expect("error reading file")
 }
 
-fn to_morse(word: &String) -> String {
+fn to_morse(word: &str) -> String {
     let mut morse_str = String::new();
     for n in word.to_lowercase().chars() {
         let c = match n {
@@ -52,12 +52,12 @@ fn group_morse_codes(codes: Vec<String>) -> HashMap<String, u8> {
     counts
 }
 
-fn count_occurences(s: &String, c: char) -> usize {
+fn count_occurences(s: &str, c: char) -> usize {
     s.matches(c).count()
 }
 
-fn get_code_word_pairs(s: &String) -> HashMap<String, String> {
-    let words: Vec<_> = s.split("\n").collect();
+fn get_code_word_pairs(s: &str) -> HashMap<String, String> {
+    let words: Vec<_> = s.split('\n').collect();
     let pairs: HashMap<String, String> = words
         .into_iter()
         .map(|w| (w.to_string(), to_morse(&w.to_string())))
@@ -65,9 +65,9 @@ fn get_code_word_pairs(s: &String) -> HashMap<String, String> {
     pairs
 }
 
-fn list_morse_codes(contents: String) -> Vec<(String)> {
-    let words: Vec<_> = contents.split("\n").collect();
-    let list_of_morse_codes: Vec<(String)> = words
+fn list_morse_codes(contents: String) -> Vec<String> {
+    let words: Vec<_> = contents.split('\n').collect();
+    let list_of_morse_codes: Vec<String> = words
         .into_iter()
         .map(|w| (to_morse(&w.to_string())))
         .collect();
@@ -75,32 +75,29 @@ fn list_morse_codes(contents: String) -> Vec<(String)> {
     list_of_morse_codes
 }
 
-fn code_contains_n_dashes(s: &String, n: usize) -> bool {
+fn code_contains_n_dashes(s: &str, n: usize) -> bool {
     let query = format!("{:-<1$}", "", n);
     s.contains(query.as_str())
 }
 
-fn word_contains_n_chars(s: &String, n: usize) -> bool {
+fn word_contains_n_chars(s: &str, n: usize) -> bool {
     s.len() == n
 }
 
-fn morse_code_contains_equal_chars(code: &String) -> bool {
+fn morse_code_contains_equal_chars(code: &str) -> bool {
     let dashes: Vec<_> = code.chars().filter(|l| l == &'-').collect();
     let dots: Vec<_> = code.chars().filter(|l| l == &'.').collect();
 
     dashes.len() == dots.len()
 }
 
-fn morse_code_is_palindrome(code: &String) -> bool {
-    let mut reversed = String::from("");
-    for c in code.chars().rev() {
-        reversed.push_str(&c.to_string())
-    }
+fn morse_code_is_palindrome(code: &str) -> bool {
+    let reversed: String = code.chars().rev().collect();
 
-    &reversed == code
+    reversed == code
 }
 
-fn count_total_dots_and_dashes(s: &String) {
+fn count_total_dots_and_dashes(s: &str) {
     // For these challenges, use the enable1 word list. It contains 172,823 words.
     // If you encode them all, you would get a total of 2,499,157 dots and 1,565,081 dashes.
     let mut morse_codes_combined = String::new();
@@ -108,7 +105,7 @@ fn count_total_dots_and_dashes(s: &String) {
         morse_codes_combined.push_str(&(morse_code.to_string()));
     }
     let amount_of_dots = count_occurences(&morse_codes_combined, '.');
-    let amount_of_dash = &morse_codes_combined.len() - amount_of_dots;
+    let amount_of_dash = morse_codes_combined.len() - amount_of_dots;
 
     println!(" amount of '.': {}", amount_of_dots);
     println!(" amount of '-': {}", amount_of_dash);
@@ -140,10 +137,8 @@ fn find_perfectly_balanced_word(pairs: &HashMap<String, String>) {
     // optional bonus challenge 3: Call a word perfectly balanced if its code has the same number of dots as dashes.
     // counterdemonstrations is one of two 21-letter words that's perfectly balanced. Find the other one.
     for (word, code) in pairs {
-        if word_contains_n_chars(&word, 21) {
-            if morse_code_contains_equal_chars(&code) {
-                println!(" perfectly balanced: '{}'", &word);
-            }
+        if word_contains_n_chars(&word, 21) && morse_code_contains_equal_chars(&code) {
+            println!(" perfectly balanced: '{}'", &word);
         }
     }
 }
@@ -152,13 +147,11 @@ fn find_palindrome_code(pairs: &HashMap<String, String>) {
     // protectorate is 12 letters long and encodes to .--..-.----.-.-.----.-..--., which is a palindrome (i.e. the string is the same when reversed).
     // Find the only 13-letter word that encodes to a palindrome.
     for (word, code) in pairs {
-        if word_contains_n_chars(&word, 13) {
-            if morse_code_is_palindrome(&code) {
-                println!(
-                    " 13 letter word: '{}' has a morse palindrome: {}",
-                    word, code
-                );
-            }
+        if word_contains_n_chars(&word, 13) && morse_code_is_palindrome(&code) {
+            println!(
+                " 13 letter word: '{}' has a morse palindrome: {}",
+                word, code
+            );
         }
     }
 }
@@ -169,22 +162,22 @@ fn main() {
 
     println!("Basic exercise (amount of dots and dashes):");
     count_total_dots_and_dashes(&dictionary);
-    println!("");
+    println!();
 
     println!("Optional bonus challenge 1 (sequence that's the code for 13 words):");
     let morse_codes = pairs.values().cloned().collect();
     find_most_common_morse_code(morse_codes);
-    println!("");
+    println!();
 
     println!("Optional bonus challenge 2 (find 15 dash word):");
     find_15_dash_string(&pairs);
-    println!("");
+    println!();
 
     println!("Optional bonus challenge 3 (find perfectly balanced word):");
     find_perfectly_balanced_word(&pairs);
-    println!("");
+    println!();
 
     println!("Optional bonus challenge 4 (find 13 letter morse palindrome):");
     find_palindrome_code(&pairs);
-    println!("");
+    println!();
 }
