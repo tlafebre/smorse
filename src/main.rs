@@ -2,9 +2,28 @@
 
 use std::collections::HashMap;
 use std::fs;
+use std::path::PathBuf;
 
-fn read_file(path: String) -> String {
+fn read_file(path: &PathBuf) -> String {
     fs::read_to_string(path).expect("error reading file")
+}
+
+struct MorseDictionary {
+    path: PathBuf,
+    pairs: HashMap<String, String>,
+}
+
+impl MorseDictionary {
+    fn from(path: PathBuf) -> MorseDictionary {
+        let text = read_file(&path);
+        let words: Vec<_> = text.split('\n').collect();
+        let pairs: HashMap<String, String> = words
+            .iter()
+            .map(|w| (w.to_string(), to_morse(&w)))
+            .collect();
+
+        MorseDictionary { path, pairs }
+    }
 }
 
 fn to_morse(word: &str) -> String {
@@ -157,27 +176,8 @@ fn find_palindrome_code(pairs: &HashMap<String, String>) {
 }
 
 fn main() {
-    let dictionary = read_file(String::from("data/enable1.txt"));
-    let pairs = get_code_word_pairs(&dictionary);
+    let path = PathBuf::from("data/enable1.txt");
 
-    println!("Basic exercise (amount of dots and dashes):");
-    count_total_dots_and_dashes(&dictionary);
-    println!();
-
-    println!("Optional bonus challenge 1 (sequence that's the code for 13 words):");
-    let morse_codes = pairs.values().cloned().collect();
-    find_most_common_morse_code(morse_codes);
-    println!();
-
-    println!("Optional bonus challenge 2 (find 15 dash word):");
-    find_15_dash_string(&pairs);
-    println!();
-
-    println!("Optional bonus challenge 3 (find perfectly balanced word):");
-    find_perfectly_balanced_word(&pairs);
-    println!();
-
-    println!("Optional bonus challenge 4 (find 13 letter morse palindrome):");
-    find_palindrome_code(&pairs);
-    println!();
+    let morse_dict = MorseDictionary::from(path);
+    let s = String::from("Tjeerd");
 }
